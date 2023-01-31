@@ -13,6 +13,7 @@
 __pycache__
 *.pyc
 *.egg-info
+.python-version
 
 # LaTeX files
 book/*/*.tex
