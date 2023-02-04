@@ -16,6 +16,7 @@ S = TypeVar('S')
 X = TypeVar('X')
 
 
+# Base class for all states S (terminal or non-terminal)
 class State(ABC, Generic[S]):
     state: S
 
@@ -24,17 +25,32 @@ class State(ABC, Generic[S]):
         f: Callable[[NonTerminal[S]], X],
         default: X
     ) -> X:
+        """Calculate a value for a certain state
+
+        Enables to calculate a value for all states in S even though the 
+        calculation is defined  only for all non-terminal states N.
+
+        Args:
+            f (Callable[[NonTerminal[S]], X]): Used to calculate a value from 
+                non-terminal states N to an arbitrary value type X
+            default (X): Provides the default value for terminal states T
+
+        Returns:
+            X: _description_
+        """
         if isinstance(self, NonTerminal):
             return f(self)
         else:
             return default
 
 
+# Class for non-terminal states N
 @dataclass(frozen=True)
 class Terminal(State[S]):
     state: S
 
 
+# Class for terminal states T
 @dataclass(frozen=True)
 class NonTerminal(State[S]):
     state: S
@@ -51,9 +67,20 @@ class MarkovProcess(ABC, Generic[S]):
     '''
     @abstractmethod
     def transition(self, state: NonTerminal[S]) -> Distribution[State[S]]:
-        '''Given a state of the process, returns a distribution of
-        the next states.  Returning None means we are in a terminal state.
-        '''
+        """Calculates the distribution of the next states given a state of the
+        process
+
+        Given a state of the process, returns a distribution of the next 
+        states (specifies the transition probability distribution of the next 
+        states, given a current non-terminal state). Returning None means we are
+        in a terminal state.
+
+        Args:
+            state (NonTerminal[S]): Current non-terminal state
+
+        Returns:
+            Distribution[State[S]]: Probability distribution of the next states
+        """
 
     def simulate(
         self,
